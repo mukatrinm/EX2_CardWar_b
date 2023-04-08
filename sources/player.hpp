@@ -9,10 +9,11 @@ namespace ariel {
 class Player {
    private:
     size_t player_id_;  // TODO: implemet this
+    static size_t next_id_;
     std::string player_name_;
     std::stack<Card> stack_;
     int cards_taken_;
-    bool player_in_game_ = false;
+    bool player_in_game_;
 
    public:
     Player(std::string name);

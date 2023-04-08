@@ -148,9 +148,17 @@ void ariel::Game::printLastTurn() {
 }
 
 void ariel::Game::playAll() {
+    while (game_status_ != GameStatus::FINISHED) {
+        playTurn();
+    }
 }
 
 void ariel::Game::printWiner() {
+    if (name_of_winner_.empty()) {
+        std::cout << "the game ended in a tie!" << std::endl;
+    }
+
+    std::cout << "the winner is " + name_of_winner_ << std::endl;
 }
 
 void ariel::Game::printLog() {
@@ -165,4 +173,13 @@ void ariel::Game::printStats() {
 }
 
 void ariel::Game::endGame(Winner winner) {
+    if (winner == Winner::PLAYER_1) {
+        name_of_winner_ = player1_.getName();
+    } else if (winner == Winner::PLAYER_2) {
+        name_of_winner_ = player2_.getName();
+    } else {
+        name_of_winner_ = nullptr;
+    }
+
+    game_status_ = GameStatus::FINISHED;
 }

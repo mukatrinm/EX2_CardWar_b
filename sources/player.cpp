@@ -2,7 +2,10 @@
 
 using namespace ariel;
 
-Player::Player(std::string name) : player_name_(name) {
+size_t Player::next_id_ = 0;
+
+Player::Player(std::string name) : player_name_(name), player_in_game_(false) {
+    player_id_ = ++next_id_;
     reset();
 }
 
