@@ -4,7 +4,7 @@
 #include <iostream>
 #include <random>
 
-ariel::Game::Game(Player& p1, Player& p2) : player1_{p1}, player2_{p2} {
+ariel::Game::Game(Player& p1, Player& p2) : player1_(p1), player2_(p2) {
     if (p1 != p2 && !p1.isInGame() && !p2.isInGame()) {
         game_status_ = GameStatus::STARTED;
     }
@@ -46,6 +46,7 @@ void ariel::Game::playTurn() {
         deck_.push_back(card1);
         deck_.push_back(card2);
         war(card1, card2);
+        deck_.clear();
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round.";
         player1_.addCard(card1);
@@ -101,19 +102,26 @@ void ariel::Game::war(Card& card1, Card& card2) {
         return;
     }
 
-    if (player1_.stacksize() == 0 && game_status_ != GameStatus::FINISHED) {
-        endGame(Winner::PLAYER_2);
-    } else if (player2_.stacksize() == 0 && game_status_ != GameStatus::FINISHED) {
-        endGame(Winner::PLAYER_1);
-    }
-
     if (player1_.stacksize() > 0) {
         card1 = player1_.drawCard();
+        turn_log_ += player1_.getName() + " played " + card1.toString() + ", ";
         deck_.push_back(card1);
     }
     if (player2_.stacksize() > 0) {
         card2 = player2_.drawCard();
+        turn_log_ += player2_.getName() + " played " + card2.toString() + ", ";
         deck_.push_back(card2);
+    }
+
+    if (deck_.size() < 6) {  // if one of the players doesn't have enough cards, the other player wins
+        if (player1_.stacksize() == 0) {
+            turn_log_ += " player " + player2_.getName() + " wins.";
+            endGame(Winner::PLAYER_2);
+        } else {
+            turn_log_ += " player " + player1_.getName() + " wins.";
+            endGame(Winner::PLAYER_1);
+        }
+        return;
     }
 
     if (card1 == card2) {
@@ -146,6 +154,11 @@ void ariel::Game::printWiner() {
 }
 
 void ariel::Game::printLog() {
+    int i = 1;
+    for (const auto& turn : log_) {
+        std::cout << std::to_string(i) << " " << turn << std::endl;
+        i++;
+    }
 }
 
 void ariel::Game::printStats() {
