@@ -11,17 +11,21 @@ class Player {
     size_t player_id_;  // TODO: implemet this
     std::string player_name_;
     std::stack<Card> stack_;
+    int cards_taken_;
     bool player_in_game_ = false;
 
    public:
     Player(std::string name);
-
+    void reset();
     void addCard(const Card& card);
+    void incCardsTaken();
+    Card drawCard();
     int stacksize() const;
     int cardesTaken();
     void startGame();
     void finishGame();
     bool isInGame();
+    std::string getName();
 
     bool operator==(const Player& other) const {
         return player_id_ == other.player_id_;

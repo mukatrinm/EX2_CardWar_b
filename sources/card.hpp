@@ -39,5 +39,17 @@ class Card {
     bool operator==(const Card& other) const {
         return rank_ == other.rank_;
     }
+
+    bool operator>(const Card& other) const {
+        if (rank_ == Rank::ACE) {
+            if (other.rank_ == Rank::TWO) {
+                return false;
+            } else {
+                return rank_ < other.rank_;
+            }
+        }
+
+        return rank_ > other.rank_;
+    }
 };
 }  // namespace ariel

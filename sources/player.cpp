@@ -1,28 +1,56 @@
 #include "player.hpp"
 
-ariel::Player::Player(std::string name) : player_name_(name) {
+using namespace ariel;
+
+Player::Player(std::string name) : player_name_(name) {
+    reset();
 }
 
-void ariel::Player::addCard(const Card& card) {
+void Player::addCard(const Card& card) {
     stack_.push(card);
 }
 
-int ariel::Player::stacksize() const {
-    return stack_.size();
+void Player::incCardsTaken() {
+    cards_taken_++;
 }
 
-int ariel::Player::cardesTaken() {
-    return 0;
-}
-
-void ariel::Player::startGame() {
-    player_in_game_ = true;
-}
-
-void ariel::Player::finishGame() {
+void ariel::Player::reset() {
+    cards_taken_ = 0;
+    stack_ = std::stack<Card>();
     player_in_game_ = false;
 }
 
-bool ariel::Player::isInGame() {
+Card Player::drawCard() {
+    if (stack_.empty()) {
+        throw std::out_of_range("player " + std::to_string(player_id_) + "stack is empty");
+    }
+
+    Card top_card = stack_.top();
+    stack_.pop();
+    return top_card;
+}
+
+int Player::stacksize() const {
+    return stack_.size();
+}
+
+int Player::cardesTaken() {
+    return cards_taken_;
+}
+
+void Player::startGame() {
+    player_in_game_ = true;
+}
+
+// TOOD: maybe delete this reset is enough
+void Player::finishGame() {
+    player_in_game_ = false;
+}
+
+bool Player::isInGame() {
     return player_in_game_;
+}
+
+std::string Player::getName() {
+    return player_name_;
 }
