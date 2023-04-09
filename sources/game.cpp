@@ -11,7 +11,6 @@ ariel::Game::Game(Player& p1, Player& p2) : player1_(p1), player2_(p2) {
     p1.startGame();
     p2.startGame();
 
-    deck_.clear();
     for (int i = 0; i < 52; ++i) {
         // each suit has 13 cards, rank starts from 1 (ACE)
         Card card(static_cast<Rank>(i % 13 + 1), static_cast<Suit>(i / 13));
@@ -49,15 +48,11 @@ void ariel::Game::playTurn() {
         deck_.clear();
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round.";
-        player1_.addCard(card1);
-        player1_.incCardsTaken();  // TODO: should i remove this?
-        player1_.addCard(card2);
+        player1_.incCardsTaken();
         player1_.incCardsTaken();
     } else {
         turn_log_ += player2_.getName() + " wins the round.";
-        player2_.addCard(card1);
-        player1_.incCardsTaken();  // TODO: should i remove this?
-        player2_.addCard(card2);
+        player2_.incCardsTaken();
         player2_.incCardsTaken();
     }
 
@@ -87,11 +82,40 @@ void ariel::Game::war(Card& card1, Card& card2) {
         deck_.push_back(card2);
     }
 
-    // player1 and player2 had no more cards.
     if (deck_.size() == 2) {
-        // TODO: implement this.
+        // player1 and player2 had no more cards.
+        // if e.g. 5, 5 -> they take back the 5, 5 and check who has more cards won (cards taken)
+        // if they have the same amount of cards taken, its a TIE
+        if (player1_.stacksize() == 0 && player2_.stacksize() == 0) {
+            if (player1_.cardesTaken() == player2_.cardesTaken()) {
+                player1_.incCardsTaken();
+                player2_.incCardsTaken();
+                endGame(Winner::TIE);
+            } else if (player1_.cardesTaken() > player2_.cardesTaken()) {
+                player1_.incCardsTaken();
+                player1_.incCardsTaken();
+                endGame(Winner::PLAYER_1);
+            } else {
+                player2_.incCardsTaken();
+                player2_.incCardsTaken();
+                endGame(Winner::PLAYER_2);
+            }
+        } else {
+            // shuffle and split the cards played in this turn between the players. always even number
+            auto rd = std::random_device{};
+            auto rng = std::default_random_engine{rd()};
+            std::shuffle(deck_.begin(), deck_.end(), rng);
 
-    } else if (deck_.size() < 4) {  // if one of the players doesn't have enough cards for war, the other player wins
+            // split the deck between the players
+            for (unsigned int i = 0; i < deck_.size() / 2; ++i) {
+                player1_.addCard(deck_[i]);
+            }
+            for (unsigned int i = deck_.size() / 2; i < deck_.size(); ++i) {
+                player2_.addCard(deck_[i]);
+            }
+        }
+    } else if (deck_.size() < 4) { 
+        // if one of the players doesn't have enough cards for war, the other player wins
         if (player1_.stacksize() == 0) {
             turn_log_ += " player " + player2_.getName() + " wins.";
             endGame(Winner::PLAYER_2);
@@ -113,7 +137,8 @@ void ariel::Game::war(Card& card1, Card& card2) {
         deck_.push_back(card2);
     }
 
-    if (deck_.size() < 6) {  // if one of the players doesn't have enough cards, the other player wins
+    if (deck_.size() < 6) { 
+        // if one of the players doesn't have enough cards, the other player wins
         if (player1_.stacksize() == 0) {
             turn_log_ += " player " + player2_.getName() + " wins.";
             endGame(Winner::PLAYER_2);
@@ -129,13 +154,11 @@ void ariel::Game::war(Card& card1, Card& card2) {
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round.";
         for (const auto& card : deck_) {
-            player1_.addCard(card);
             player1_.incCardsTaken();
         }
     } else {
         turn_log_ += player2_.getName() + " wins the round.";
         for (const auto& card : deck_) {
-            player2_.addCard(card);
             player2_.incCardsTaken();
         }
     }
@@ -154,8 +177,14 @@ void ariel::Game::playAll() {
 }
 
 void ariel::Game::printWiner() {
+    if (game_status_ != GameStatus::FINISHED) {
+        std::cout << "the game didn't finish yet!" << std::endl;
+        return;
+    }
+
     if (name_of_winner_.empty()) {
         std::cout << "the game ended in a tie!" << std::endl;
+        return;
     }
 
     std::cout << "the winner is " + name_of_winner_ << std::endl;

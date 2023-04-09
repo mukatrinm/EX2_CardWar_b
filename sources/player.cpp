@@ -4,8 +4,7 @@ using namespace ariel;
 
 size_t Player::next_id_ = 0;
 
-Player::Player(std::string name) : player_name_(name), player_in_game_(false) {
-    player_id_ = ++next_id_;
+Player::Player(std::string name) : player_id_(++next_id_), player_name_(name), player_in_game_(false), cards_taken_(0) {
     reset();
 }
 
@@ -34,7 +33,7 @@ Card Player::drawCard() {
 }
 
 int Player::stacksize() const {
-    return stack_.size();
+    return static_cast<int>(stack_.size());
 }
 
 int Player::cardesTaken() {
