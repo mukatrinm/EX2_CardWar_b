@@ -24,12 +24,12 @@ void ariel::Player::reset() {
 
 Card Player::drawCard() {
     if (stack_.empty()) {
-        throw std::out_of_range("player " + std::to_string(player_id_) + "stack is empty");
+        throw std::out_of_range("player " + std::to_string(player_id_) + " stack is empty");
+    } else {
+        Card top_card = stack_.top();
+        stack_.pop();
+        return top_card;
     }
-
-    Card top_card = stack_.top();
-    stack_.pop();
-    return top_card;
 }
 
 int Player::stacksize() const {
