@@ -4,7 +4,7 @@ using namespace ariel;
 
 size_t Player::next_id_ = 0;
 
-Player::Player(std::string name) : player_id_(++next_id_), player_name_(name), player_in_game_(false), cards_taken_(0) {
+Player::Player(std::string name) : player_id_(++next_id_), player_name_(name), player_in_game_(false), cards_taken_(0), rounds_won_(0), num_of_ties_(0) {
     reset();
 }
 
@@ -20,6 +20,8 @@ void ariel::Player::reset() {
     cards_taken_ = 0;
     stack_ = std::stack<Card>();
     player_in_game_ = false;
+    rounds_won_ = 0;
+    num_of_ties_ = 0;
 }
 
 Card Player::drawCard() {
@@ -41,6 +43,7 @@ int Player::cardesTaken() {
 }
 
 void Player::startGame() {
+    reset();
     player_in_game_ = true;
 }
 
@@ -55,4 +58,22 @@ bool Player::isInGame() {
 
 std::string Player::getName() {
     return player_name_;
+}
+
+void Player::wins(int cards_taken) {
+    cards_taken_ += cards_taken;
+    rounds_won_++;
+}
+
+void Player::tie() {
+    // cards_taken_++;
+    num_of_ties_++;
+}
+
+int Player::getNumOfTies() {
+    return num_of_ties_;
+}
+
+int Player::getNumOfRoundsWon() {
+    return rounds_won_;
 }

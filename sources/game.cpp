@@ -1,12 +1,13 @@
 #include "game.hpp"
 
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <random>
 
 using namespace std;
 
-ariel::Game::Game(Player& p1, Player& p2) : player1_(p1), player2_(p2) {
+ariel::Game::Game(Player& p1, Player& p2) : player1_(p1), player2_(p2), num_of_rounds(0) {
     if (p1 != p2 && !p1.isInGame() && !p2.isInGame()) {
         game_status_ = GameStatus::STARTED;
         player1_.startGame();
@@ -37,6 +38,7 @@ ariel::Game::Game(Player& p1, Player& p2) : player1_(p1), player2_(p2) {
 }
 
 void ariel::Game::playTurn() {
+    num_of_rounds++;
     if (game_status_ != GameStatus::STARTED) {
         throw std::runtime_error("game not started or already finished");
     }
@@ -49,16 +51,20 @@ void ariel::Game::playTurn() {
     turn_log_ += player2_.getName() + " played " + card2.toString() + ". ";
 
     if (card1 == card2) {
+        // player1_.tie();
+        // player2_.tie();
         war(card1, card2);
         deck_.clear();
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round.";
-        player1_.incCardsTaken();
-        player1_.incCardsTaken();
+        // player1_.incCardsTaken();
+        // player1_.incCardsTaken();
+        player1_.wins(2);
     } else {
         turn_log_ += player2_.getName() + " wins the round.";
-        player2_.incCardsTaken();
-        player2_.incCardsTaken();
+        // player2_.incCardsTaken();
+        // player2_.incCardsTaken();
+        player2_.wins(2);
     }
 
     // check if game is finished
@@ -83,7 +89,8 @@ void ariel::Game::war(Card& card1, Card& card2) {
     if (game_status_ != GameStatus::STARTED) {
         return;
     }
-
+    player1_.tie();
+    player2_.tie();
     turn_log_ += " WAR! ";
     // if it's not the first war, cards are already added to the deck.
     if (deck_.size() == 0) {
@@ -98,14 +105,18 @@ void ariel::Game::war(Card& card1, Card& card2) {
         if (player1_.cardesTaken() == player2_.cardesTaken()) {
             player1_.incCardsTaken();
             player2_.incCardsTaken();
+            // player1_.tie();
+            // player2_.tie();
             endGame(Winner::TIE);
         } else if (player1_.cardesTaken() > player2_.cardesTaken()) {
-            player1_.incCardsTaken();
-            player1_.incCardsTaken();
+            // player1_.incCardsTaken();
+            // player1_.incCardsTaken();
+            player1_.wins(2);
             endGame(Winner::PLAYER_1);
         } else {
-            player2_.incCardsTaken();
-            player2_.incCardsTaken();
+            // player2_.incCardsTaken();
+            // player2_.incCardsTaken();
+            player2_.wins(2);
             endGame(Winner::PLAYER_2);
         }
         return;
@@ -186,14 +197,16 @@ void ariel::Game::war(Card& card1, Card& card2) {
         war(card1, card2);
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round. won " + std::to_string(deck_.size()) + " cards!";
-        for (const auto& card : deck_) {
-            player1_.incCardsTaken();
-        }
+        // for (const auto& card : deck_) {
+        //     player1_.incCardsTaken();
+        // }
+        player1_.wins(deck_.size());
     } else {
         turn_log_ += player2_.getName() + " wins the round. won " + std::to_string(deck_.size()) + " cards!";
-        for (const auto& card : deck_) {
-            player2_.incCardsTaken();
-        }
+        // for (const auto& card : deck_) {
+        //     player2_.incCardsTaken();
+        // }
+        player2_.wins(deck_.size());
     }
 }
 
@@ -233,6 +246,15 @@ void ariel::Game::printLog() {
 }
 
 void ariel::Game::printStats() {
+    std::cout << "Player 1 stats:\n";
+    std::cout << "Cards taken: " << player1_.cardesTaken() << std::endl;
+    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player1_.getNumOfRoundsWon() / num_of_rounds << "%" << std::endl;
+
+    std::cout << "\nPlayer 2 stats:\n";
+    std::cout << "Cards taken: " << player2_.cardesTaken() << std::endl;
+    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player2_.getNumOfRoundsWon() / num_of_rounds << "%" << std::endl;
+
+    std::cout << "\nNumber of ties: " << player1_.getNumOfTies() << std::endl;
 }
 
 void ariel::Game::endGame(Winner winner) {
@@ -243,6 +265,7 @@ void ariel::Game::endGame(Winner winner) {
     }  // else it's a tie, name_of_winner_ should stay empty.
 
     game_status_ = GameStatus::FINISHED;
-    player1_.finishGame();
-    player2_.finishGame();
+    // player1_.reset();
+    // player2_.reset();
+    // num_of_rounds = 0;
 }

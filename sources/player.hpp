@@ -15,6 +15,9 @@ class Player {
     int cards_taken_;
     bool player_in_game_;
 
+    int rounds_won_;
+    int num_of_ties_;
+
    public:
     Player(std::string name);
     void reset();
@@ -27,6 +30,10 @@ class Player {
     void finishGame();
     bool isInGame();
     std::string getName();
+    void wins(int cards_taken);
+    void tie();
+    int getNumOfTies();
+    int getNumOfRoundsWon();
 
     bool operator==(const Player& other) const {
         return player_id_ == other.player_id_;

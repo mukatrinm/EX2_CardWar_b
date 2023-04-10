@@ -28,6 +28,7 @@ class Game {
     std::vector<std::string> log_;
     std::string turn_log_;
     std::string name_of_winner_;
+    int num_of_rounds;
 
     void war(Card& card1, Card& card2);
     void endGame(Winner winner);
