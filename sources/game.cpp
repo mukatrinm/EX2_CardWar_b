@@ -7,7 +7,7 @@
 
 using namespace std;
 
-ariel::Game::Game(Player& player1, Player& player2) : player1_(player1), player2_(player2), num_of_rounds(0) {
+ariel::Game::Game(Player& player1, Player& player2) : player1_(player1), player2_(player2), num_of_rounds_(0) {
     if (player1 != player2 && !player1.isInGame() && !player2.isInGame()) {
         game_status_ = GameStatus::STARTED;
         player1_.startGame();
@@ -38,7 +38,7 @@ ariel::Game::Game(Player& player1, Player& player2) : player1_(player1), player2
 }
 
 void ariel::Game::playTurn() {
-    num_of_rounds++;
+    num_of_rounds_++;
     if (game_status_ != GameStatus::STARTED) {
         throw std::runtime_error("game not started or already finished");
     }
@@ -121,7 +121,6 @@ void ariel::Game::war(Card& card1, Card& card2) {
         }
         return;
     } else if (player1_.stacksize() == 0 && deck_.size() > 2) {
-        // TODO: maybe all 2s are in the both stacks, fix this (4 Twos)
         // player1 and player2 had no more cards but it's not the first war in this round.
         // if e.g. 5, 5 -> they take back the 5, 5 and check who has more cards won (cards taken)
         // if they have the same amount of cards taken, its a TIE
@@ -166,30 +165,40 @@ void ariel::Game::war(Card& card1, Card& card2) {
         deck_.push_back(card2);
     } else {
         // player1 and player2 have no more cards for the war.
-        // shuffle and split thrown cards.
-        auto rd = std::random_device{};
-        auto rng = std::default_random_engine{rd()};
-        std::shuffle(deck_.begin(), deck_.end(), rng);
+        if (deck_.size() == 4 && allCardsSameRank(deck_)) {
+            // if there are 4 cards left with same rank (e.g. 4 Twos) we dont want to enter an infinite game.
+            std::cout << "cards left are same rank, ending game" << std::endl;
+            player1_.incCardsTaken();
+            player1_.incCardsTaken();
+            player2_.incCardsTaken();
+            player2_.incCardsTaken();
+            player1_.tie();
+            player2_.tie();
+            if (player1_.cardesTaken() == player2_.cardesTaken()) {
+                endGame(Winner::TIE);
+            } else if (player1_.cardesTaken() > player2_.cardesTaken()) {
+                endGame(Winner::PLAYER_1);
+            } else {
+                endGame(Winner::PLAYER_2);
+            }
+        } else {
+            // shuffle and split thrown cards.
+            auto rd = std::random_device{};
+            auto rng = std::default_random_engine{rd()};
+            std::shuffle(deck_.begin(), deck_.end(), rng);
 
-        // split the deck between the players
-        for (unsigned int i = 0; i < deck_.size() / 2; ++i) {
-            player1_.addCard(deck_[i]);
+            // split the deck between the players
+            for (unsigned int i = 0; i < deck_.size() / 2; ++i) {
+                player1_.addCard(deck_[i]);
+            }
+            for (unsigned int i = deck_.size() / 2; i < deck_.size(); ++i) {
+                player2_.addCard(deck_[i]);
+            }
+
+            turn_log_ += " no more cards, reshuffling, ";
+            deck_.clear();
+            playTurn();  // should play as they were in a normal turn because they reshuffled (they're still in a war).
         }
-        for (unsigned int i = deck_.size() / 2; i < deck_.size(); ++i) {
-            player2_.addCard(deck_[i]);
-        }
-        // TODO: need to change this to play the turn again when not using playAll
-        /*
-            p1 cards taken: 30
-            p2 cards taken: 20
-            p1 cards stacksize: 1
-            p1 cards stacksize: 1
-            StudentTest1.cpp:87:
-            TEST CASE:  The game ends after at most 26 turns
-         */
-        turn_log_ += " no more cards, reshuffling, ";
-        deck_.clear();
-        playTurn();  // should play as they were in a normal turn because they reshuffled (they're still in a war).
         return;
     }
 
@@ -246,15 +255,29 @@ void ariel::Game::printLog() {
 }
 
 void ariel::Game::printStats() {
-    std::cout << "Player 1 stats:\n";
+    std::cout << "Player " << player1_.getName() << " stats:\n";
     std::cout << "Cards taken: " << player1_.cardesTaken() << std::endl;
-    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player1_.getNumOfRoundsWon() / num_of_rounds << "%" << std::endl;
+    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player1_.getNumOfRoundsWon() / num_of_rounds_ << "%" << std::endl;
 
-    std::cout << "\nPlayer 2 stats:\n";
+    std::cout << "\nPlayer " << player2_.getName() << " stats:\n";
     std::cout << "Cards taken: " << player2_.cardesTaken() << std::endl;
-    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player2_.getNumOfRoundsWon() / num_of_rounds << "%" << std::endl;
+    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player2_.getNumOfRoundsWon() / num_of_rounds_ << "%" << std::endl;
 
     std::cout << "\nNumber of ties: " << player1_.getNumOfTies() << std::endl;
+    std::cout << "number of rounds: " << num_of_rounds_ << std::endl;
+}
+
+bool ariel::Game::allCardsSameRank(const std::vector<Card>& deck) {
+    Card first_card = deck_[0];
+
+    for (std::size_t i = 1; i < deck_.size(); ++i) {
+        if (deck_[i] != first_card) {
+            // if the rank of any card does not match the rank of the first card, then return false
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void ariel::Game::endGame(Winner winner) {
@@ -267,5 +290,5 @@ void ariel::Game::endGame(Winner winner) {
     game_status_ = GameStatus::FINISHED;
     // player1_.reset();
     // player2_.reset();
-    // num_of_rounds = 0;
+    // num_of_rounds_ = 0;
 }
