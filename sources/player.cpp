@@ -4,9 +4,7 @@
 
 using namespace ariel;
 
-size_t Player::next_id_ = 0;
-
-Player::Player(std::string name) : player_id_(++next_id_), player_name_(name), player_in_game_(false), cards_taken_(0), rounds_won_(0), num_of_ties_(0) {
+Player::Player(std::string name) : player_name_(name), player_in_game_(false), cards_taken_(0), rounds_won_(0), num_of_ties_(0) {
     reset();
 }
 
@@ -28,7 +26,7 @@ void ariel::Player::reset() {
 
 Card Player::drawCard() {
     if (stack_.empty()) {
-        throw std::out_of_range("player " + std::to_string(player_id_) + " stack is empty");
+        throw std::out_of_range("player " + player_name_ + " stack's is empty");
     } else {
         Card top_card = stack_.top();
         stack_.pop();

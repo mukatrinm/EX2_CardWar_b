@@ -8,8 +8,6 @@
 namespace ariel {
 class Player {
    private:
-    size_t player_id_;  // TODO: implemet this
-    static size_t next_id_;
     std::string player_name_;
     std::stack<Card> stack_;
     int cards_taken_;
@@ -36,11 +34,11 @@ class Player {
     int getNumOfRoundsWon();
 
     bool operator==(const Player& other) const {
-        return player_id_ == other.player_id_;
+        return player_name_ == other.player_name_;
     }
 
     bool operator!=(const Player& other) const {
-        return player_id_ != other.player_id_;
+        return player_name_ != other.player_name_;
     }
 };
 }  // namespace ariel
