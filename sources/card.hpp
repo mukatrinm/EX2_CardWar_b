@@ -44,9 +44,9 @@ class Card {
         if (rank_ == Rank::ACE) {
             if (other.rank_ == Rank::TWO) {
                 return false;
-            } else {
-                return rank_ < other.rank_;
             }
+
+            return rank_ < other.rank_;
         }
 
         return rank_ > other.rank_;

@@ -1,5 +1,7 @@
 #include "player.hpp"
 
+#include <stdexcept>
+
 using namespace ariel;
 
 size_t Player::next_id_ = 0;

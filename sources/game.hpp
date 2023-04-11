@@ -34,7 +34,7 @@ class Game {
     void endGame(Winner winner);
 
    public:
-    Game(Player& p1, Player& p2);
+    Game(Player& player1, Player& player2);
 
     void playTurn();
     void printLastTurn();

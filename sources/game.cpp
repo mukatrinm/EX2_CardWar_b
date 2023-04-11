@@ -7,8 +7,8 @@
 
 using namespace std;
 
-ariel::Game::Game(Player& p1, Player& p2) : player1_(p1), player2_(p2), num_of_rounds(0) {
-    if (p1 != p2 && !p1.isInGame() && !p2.isInGame()) {
+ariel::Game::Game(Player& player1, Player& player2) : player1_(player1), player2_(player2), num_of_rounds(0) {
+    if (player1 != player2 && !player1.isInGame() && !player2.isInGame()) {
         game_status_ = GameStatus::STARTED;
         player1_.startGame();
         player2_.startGame();
