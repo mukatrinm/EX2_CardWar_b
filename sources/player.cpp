@@ -66,7 +66,6 @@ void Player::wins(int cards_taken) {
 }
 
 void Player::tie() {
-    // cards_taken_++;
     num_of_ties_++;
 }
 

@@ -51,19 +51,13 @@ void ariel::Game::playTurn() {
     turn_log_ += player2_.getName() + " played " + card2.toString() + ". ";
 
     if (card1 == card2) {
-        // player1_.tie();
-        // player2_.tie();
         war(card1, card2);
         deck_.clear();
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round.";
-        // player1_.incCardsTaken();
-        // player1_.incCardsTaken();
         player1_.wins(2);
     } else {
         turn_log_ += player2_.getName() + " wins the round.";
-        // player2_.incCardsTaken();
-        // player2_.incCardsTaken();
         player2_.wins(2);
     }
 
@@ -84,7 +78,6 @@ void ariel::Game::playTurn() {
     log_.push_back(turn_log_);
 }
 
-// TODO: how to deal with the case where both players has 1 card left with the same rank?
 void ariel::Game::war(Card& card1, Card& card2) {
     if (game_status_ != GameStatus::STARTED) {
         return;
@@ -109,21 +102,14 @@ void ariel::Game::war(Card& card1, Card& card2) {
             // player2_.tie();
             endGame(Winner::TIE);
         } else if (player1_.cardesTaken() > player2_.cardesTaken()) {
-            // player1_.incCardsTaken();
-            // player1_.incCardsTaken();
             player1_.wins(2);
             endGame(Winner::PLAYER_1);
         } else {
-            // player2_.incCardsTaken();
-            // player2_.incCardsTaken();
             player2_.wins(2);
             endGame(Winner::PLAYER_2);
         }
         return;
     } else if (player1_.stacksize() == 0 && deck_.size() > 2) {
-        // player1 and player2 had no more cards but it's not the first war in this round.
-        // if e.g. 5, 5 -> they take back the 5, 5 and check who has more cards won (cards taken)
-        // if they have the same amount of cards taken, its a TIE
         auto rd = std::random_device{};
         auto rng = std::default_random_engine{rd()};
         std::shuffle(deck_.begin(), deck_.end(), rng);
@@ -206,15 +192,9 @@ void ariel::Game::war(Card& card1, Card& card2) {
         war(card1, card2);
     } else if (card1 > card2) {
         turn_log_ += player1_.getName() + " wins the round. won " + std::to_string(deck_.size()) + " cards!";
-        // for (const auto& card : deck_) {
-        //     player1_.incCardsTaken();
-        // }
         player1_.wins(deck_.size());
     } else {
         turn_log_ += player2_.getName() + " wins the round. won " + std::to_string(deck_.size()) + " cards!";
-        // for (const auto& card : deck_) {
-        //     player2_.incCardsTaken();
-        // }
         player2_.wins(deck_.size());
     }
 }
@@ -231,7 +211,6 @@ void ariel::Game::playAll() {
     }
 }
 
-// TODO: if the game didn't finish yet what should i print?
 void ariel::Game::printWiner() {
     if (game_status_ != GameStatus::FINISHED) {
         std::cout << "the game didn't finish yet!" << std::endl;
@@ -288,7 +267,4 @@ void ariel::Game::endGame(Winner winner) {
     }  // else it's a tie, name_of_winner_ should stay empty.
 
     game_status_ = GameStatus::FINISHED;
-    // player1_.reset();
-    // player2_.reset();
-    // num_of_rounds_ = 0;
 }
