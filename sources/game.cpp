@@ -234,16 +234,20 @@ void ariel::Game::printLog() {
 }
 
 void ariel::Game::printStats() {
-    std::cout << "Player " << player1_.getName() << " stats:\n";
-    std::cout << "Cards taken: " << player1_.cardesTaken() << std::endl;
-    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player1_.getNumOfRoundsWon() / num_of_rounds_ << "%" << std::endl;
+    if (game_status_ == GameStatus::FINISHED) {
+        std::cout << "Player " << player1_.getName() << " stats:\n";
+        std::cout << "Cards taken: " << player1_.cardesTaken() << std::endl;
+        std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player1_.getNumOfRoundsWon() / num_of_rounds_ << "%" << std::endl;
 
-    std::cout << "\nPlayer " << player2_.getName() << " stats:\n";
-    std::cout << "Cards taken: " << player2_.cardesTaken() << std::endl;
-    std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player2_.getNumOfRoundsWon() / num_of_rounds_ << "%" << std::endl;
+        std::cout << "\nPlayer " << player2_.getName() << " stats:\n";
+        std::cout << "Cards taken: " << player2_.cardesTaken() << std::endl;
+        std::cout << "Win rate: " << std::fixed << std::setprecision(2) << (double)player2_.getNumOfRoundsWon() / num_of_rounds_ << "%" << std::endl;
 
-    std::cout << "\nNumber of ties: " << player1_.getNumOfTies() << std::endl;
-    std::cout << "number of rounds: " << num_of_rounds_ << std::endl;
+        std::cout << "\nNumber of ties: " << player1_.getNumOfTies() << std::endl;
+        std::cout << "number of rounds: " << num_of_rounds_ << std::endl;
+    } else {
+        std::cout << "game not finished, can't print stats." << std::endl;
+    }
 }
 
 bool ariel::Game::allCardsSameRank(const std::vector<Card>& deck) {
